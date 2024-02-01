@@ -49,9 +49,15 @@ private:
 
             // If inserting this record would exceed the block size, write the current buffer to the file
         if (currentBlockIndex + recordSize > BLOCK_SIZE) {
-            fileStream.write(buffer[currentBufferIndex].data(), currentBlockIndex);
+            currentBufferIndex += 1;
             currentBlockIndex = 0;
-            currentBufferIndex = (currentBufferIndex + 1) % MAX_BLOCKS_IN_MEMORY;
+        }
+
+        if(currentBufferIndex >= 3){
+            fileStream.write(buffer[currentBufferIndex].data(), BLOCK_SIZE);
+            currentBufferIndex = 0;
+            currentBlockIndex = 0;
+
         }
 
             // Copy the serialized record data into the current buffer and update the current block index
@@ -95,8 +101,8 @@ void createFromFile(string csvFName) {
     }
 
     // Write the remaining records
-    if (currentBlockIndex > 0) {
-        fileStream.write(buffer[currentBufferIndex].data(), currentBlockIndex);
+    for(int i=0; i <= currentBufferIndex; i++){
+        fileStream.write(buffer[currentBufferIndex].data(), BLOCK_SIZE);
     }
 
     csvFile.close();
